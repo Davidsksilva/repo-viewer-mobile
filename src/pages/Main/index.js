@@ -35,9 +35,9 @@ const Main = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const prevUsers = usePrevious(users);
+
   // Checking for stored users
   async function checkStoredUsers() {
-    // AsyncStorage.removeItem('users');
     const storedUsers = await AsyncStorage.getItem('users');
 
     if (storedUsers) {
@@ -52,8 +52,6 @@ const Main = () => {
 
   // When users changes
   useEffect(() => {
-    // console.tron.log(prevUsers);
-    // console.tron.log(users);
     if (prevUsers !== users) {
       AsyncStorage.setItem('users', JSON.stringify(users));
     }

@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Keyboard, ActivityIndicator } from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import api from '../../services/api';
@@ -18,10 +19,45 @@ import {
   ProfileButtonText,
 } from './styles';
 
+// Hook
+function usePrevious(value) {
+  const ref = useRef();
+
+  useEffect(() => {
+    ref.current = value;
+  }, [value]);
+
+  return ref.current;
+}
+
 const Main = () => {
   const [newUser, setNewUser] = useState('');
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
+  const prevUsers = usePrevious(users);
+  // Checking for stored users
+  async function checkStoredUsers() {
+    // AsyncStorage.removeItem('users');
+    const storedUsers = await AsyncStorage.getItem('users');
+
+    if (storedUsers) {
+      setUsers(JSON.parse(storedUsers));
+    }
+  }
+
+  // When component mounts
+  useEffect(() => {
+    checkStoredUsers();
+  }, []);
+
+  // When users changes
+  useEffect(() => {
+    // console.tron.log(prevUsers);
+    // console.tron.log(users);
+    if (prevUsers !== users) {
+      AsyncStorage.setItem('users', JSON.stringify(users));
+    }
+  }, [users]);
 
   const handleAddUser = async () => {
     setLoading(true);

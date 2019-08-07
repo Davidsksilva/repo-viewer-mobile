@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Keyboard, ActivityIndicator } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import PropTypes from 'prop-types';
 
 import api from '../../services/api';
 
@@ -30,7 +31,7 @@ function usePrevious(value) {
   return ref.current;
 }
 
-const Main = () => {
+const Main = props => {
   const [newUser, setNewUser] = useState('');
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -75,6 +76,13 @@ const Main = () => {
 
     Keyboard.dismiss();
   };
+
+  const handleHavigate = user => {
+    const { navigation } = props;
+
+    navigation.navigate('User', { user });
+  };
+
   return (
     <Container>
       <Form>
@@ -104,8 +112,8 @@ const Main = () => {
             <Name> {item.name}</Name>
             <Bio> {item.bio}</Bio>
 
-            <ProfileButton onPress={() => {}}>
-              <ProfileButtonText>Enter profile</ProfileButtonText>
+            <ProfileButton onPress={() => handleHavigate(item)}>
+              <ProfileButtonText>Check Profile</ProfileButtonText>
             </ProfileButton>
           </User>
         )}
@@ -116,6 +124,12 @@ const Main = () => {
 
 Main.navigationOptions = {
   title: 'Users',
+};
+
+Main.propTypes = {
+  navigation: PropTypes.shape({
+    navigate: PropTypes.func,
+  }).isRequired,
 };
 
 export default Main;

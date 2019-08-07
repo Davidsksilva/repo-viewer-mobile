@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { ActivityIndicator } from 'react-native';
+import { ActivityIndicator, TouchableOpacity } from 'react-native';
 import {
   Container,
   Header,
@@ -64,6 +64,10 @@ const User = ({ navigation }) => {
     fetchStarredRepos();
   }, []);
 
+  const handleHavigate = star => {
+    navigation.navigate('WebViewer', { star });
+  };
+
   const user = navigation.getParam('user');
   return (
     <Container>
@@ -85,13 +89,15 @@ const User = ({ navigation }) => {
           refreshing={refreshing}
           keyExtractor={star => String(star.id)}
           renderItem={({ item }) => (
-            <Starred>
-              <OwnerAvatar source={{ uri: item.owner.avatar_url }} />
-              <Info>
-                <Title>{item.name}</Title>
-                <Author>{item.owner.login}</Author>
-              </Info>
-            </Starred>
+            <TouchableOpacity onPress={() => handleHavigate(item)}>
+              <Starred>
+                <OwnerAvatar source={{ uri: item.owner.avatar_url }} />
+                <Info>
+                  <Title>{item.name}</Title>
+                  <Author>{item.owner.login}</Author>
+                </Info>
+              </Starred>
+            </TouchableOpacity>
           )}
         />
       )}
@@ -106,6 +112,7 @@ User.navigationOptions = ({ navigation }) => ({
 User.propTypes = {
   navigation: PropTypes.shape({
     getParam: PropTypes.func,
+    navigate: PropTypes.func,
   }).isRequired,
 };
 

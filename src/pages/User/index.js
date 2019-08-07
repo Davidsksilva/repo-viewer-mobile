@@ -20,14 +20,44 @@ import api from '../../services/api';
 const User = ({ navigation }) => {
   const [stars, setStars] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [refreshing, setRefreshing] = useState(false);
+
   // Get list of starred repositories
   async function fetchStarredRepos() {
     setLoading(true);
     const user = navigation.getParam('user');
 
-    const response = await api.get(`/users/${user.login}/starred`);
-    setLoading(false);
+    const response = await api.get(`/users/${user.login}/starred`, {
+      params: { page, per_page: 10 },
+    });
     setStars(response.data);
+
+    setLoading(false);
+  }
+
+  async function refreshList() {
+    setRefreshing(true);
+
+    const user = navigation.getParam('user');
+
+    const response = await api.get(`/users/${user.login}/starred`, {
+      params: { page: 1, per_page: 10 },
+    });
+
+    setStars(response.data);
+
+    setRefreshing(false);
+  }
+  async function loadMore() {
+    const user = navigation.getParam('user');
+    const nextPage = page + 1;
+    const response = await api.get(`/users/${user.login}/starred`, {
+      params: { page: nextPage, per_page: 10 },
+    });
+    setPage(nextPage);
+    const updatedStars = stars.concat(response.data);
+    setStars(updatedStars);
   }
 
   useEffect(() => {
@@ -48,7 +78,11 @@ const User = ({ navigation }) => {
         </LoadingContainer>
       ) : (
         <Stars
+          onEndReached={loadMore}
+          onEndReachedThreshold={0.2}
           data={stars}
+          onRefresh={refreshList}
+          refreshing={refreshing}
           keyExtractor={star => String(star.id)}
           renderItem={({ item }) => (
             <Starred>
